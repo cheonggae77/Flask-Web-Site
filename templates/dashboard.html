@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}대시보드 | Flask Login Site{% endblock %}
+{% block title %}대시보드 | Flask Board Site{% endblock %}
 
 {% block content %}
 <section class="hero dashboard">
@@ -8,17 +8,40 @@
         <p class="eyebrow">Private Area</p>
         <h1>{{ current_user["username"] }}님, 로그인 상태입니다.</h1>
         <p class="hero-text">
-            이 페이지는 로그인한 사용자만 볼 수 있습니다. 세션 인증이 정상적으로 동작하고 있습니다.
+            이 페이지는 로그인한 사용자만 볼 수 있습니다. 게시판 작성과 권한 제어도 함께 활성화되어 있습니다.
         </p>
-        <a class="button primary" href="{{ url_for('logout') }}">로그아웃</a>
+        <div class="actions">
+            <a class="button primary" href="{{ url_for('board_list') }}">게시판 보기</a>
+            <a class="button secondary" href="{{ url_for('board_create') }}">글 작성하기</a>
+        </div>
     </div>
     <div class="card feature-card">
         <h2>계정 정보</h2>
         <ul>
             <li>사용자 ID: {{ current_user["id"] }}</li>
             <li>사용자명: {{ current_user["username"] }}</li>
+            <li>권한: {% if current_user["is_admin"] %}관리자{% else %}일반 사용자{% endif %}</li>
             <li>인증 방식: Flask Session</li>
         </ul>
     </div>
+</section>
+
+<section class="card board-preview">
+    <div class="section-header">
+        <h2>최근 게시글</h2>
+        <a class="button secondary" href="{{ url_for('board_list') }}">전체 보기</a>
+    </div>
+    {% if recent_posts %}
+    <div class="post-list compact">
+        {% for post in recent_posts %}
+        <a class="post-item" href="{{ url_for('board_detail', post_id=post['id']) }}">
+            <strong>{{ post["title"] }}</strong>
+            <span>{{ post["username"] }} · {{ post["created_at"] }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted">아직 작성된 게시글이 없습니다.</p>
+    {% endif %}
 </section>
 {% endblock %}

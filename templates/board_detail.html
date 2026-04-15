@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post["title"] }} | Flask Board Site{% endblock %}
+
+{% block content %}
+<article class="card post-detail">
+    <div class="post-meta">
+        <span>작성자 {{ post["username"] }}</span>
+        <span>작성 {{ post["created_at"] }}</span>
+        <span>수정 {{ post["updated_at"] }}</span>
+    </div>
+    <h1 class="post-title">{{ post["title"] }}</h1>
+    <div class="post-content">{{ post["content"]|replace('\n', '<br>')|safe }}</div>
+
+    <div class="actions">
+        <a class="button secondary" href="{{ url_for('board_list') }}">목록으로</a>
+        {% if can_manage %}
+        <a class="button primary" href="{{ url_for('board_edit', post_id=post['id']) }}">수정</a>
+        <form method="post" action="{{ url_for('board_delete', post_id=post['id']) }}">
+            <button class="button danger" type="submit">삭제</button>
+        </form>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

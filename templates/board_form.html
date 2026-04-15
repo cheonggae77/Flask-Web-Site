@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if mode == "edit" %}게시글 수정{% else %}글 작성{% endif %} | Flask Board Site
+{% endblock %}
+
+{% block content %}
+<section class="card auth-card board-form-card">
+    <h1>{% if mode == "edit" %}게시글 수정{% else %}글 작성{% endif %}</h1>
+    <p class="muted">제목과 내용을 입력한 뒤 저장하세요.</p>
+
+    <form method="post" class="auth-form">
+        <label for="title">제목</label>
+        <input
+            id="title"
+            name="title"
+            type="text"
+            placeholder="제목을 입력하세요"
+            value="{{ post['title'] if post else '' }}"
+            required
+        >
+
+        <label for="content">내용</label>
+        <textarea
+            id="content"
+            name="content"
+            rows="10"
+            placeholder="내용을 입력하세요"
+            required
+        >{{ post['content'] if post else '' }}</textarea>
+
+        <button class="button primary" type="submit">
+            {% if mode == "edit" %}수정 완료{% else %}게시글 등록{% endif %}
+        </button>
+    </form>
+</section>
+{% endblock %}

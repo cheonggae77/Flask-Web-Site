@@ -3,19 +3,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Flask Login Site{% endblock %}</title>
+    <title>{% block title %}Flask Board Site{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="site-header">
         <div class="container nav">
-            <a class="brand" href="{{ url_for('home') }}">Flask Auth</a>
+            <a class="brand" href="{{ url_for('home') }}">Flask Board</a>
             <nav class="nav-links">
-                <a href="{{ url_for('home') }}">홈</a>
                 {% if current_user %}
+                <a href="{{ url_for('home') }}">홈</a>
+                <a href="{{ url_for('board_list') }}">게시판</a>
                 <a href="{{ url_for('dashboard') }}">대시보드</a>
+                <span class="user-badge">
+                    {{ current_user["username"] }}
+                    {% if current_user["is_admin"] %}
+                    <strong>관리자</strong>
+                    {% endif %}
+                </span>
                 <a href="{{ url_for('logout') }}">로그아웃</a>
                 {% else %}
+                <a href="{{ url_for('home') }}">홈</a>
                 <a href="{{ url_for('login') }}">로그인</a>
                 <a href="{{ url_for('register') }}">회원가입</a>
                 {% endif %}
