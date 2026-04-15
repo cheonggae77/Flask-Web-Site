@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}홈 | Flask Login Site{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Flask Authentication Demo</p>
+        <h1>로그인 기능이 포함된 Flask 웹사이트</h1>
+        <p class="hero-text">
+            회원가입, 로그인, 로그아웃, 세션 기반 접근 제어까지 한 번에 들어간 예제입니다.
+        </p>
+        <div class="actions">
+            {% if current_user %}
+            <a class="button primary" href="{{ url_for('dashboard') }}">대시보드로 이동</a>
+            {% else %}
+            <a class="button primary" href="{{ url_for('login') }}">로그인하기</a>
+            <a class="button secondary" href="{{ url_for('register') }}">회원가입하기</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card feature-card">
+        <h2>포함된 기능</h2>
+        <ul>
+            <li>SQLite 사용자 정보 저장</li>
+            <li>비밀번호 해시 저장</li>
+            <li>로그인된 사용자만 접근 가능한 대시보드</li>
+            <li>Flash 메시지 기반 안내 UI</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}

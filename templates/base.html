@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Flask Login Site{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav">
+            <a class="brand" href="{{ url_for('home') }}">Flask Auth</a>
+            <nav class="nav-links">
+                <a href="{{ url_for('home') }}">홈</a>
+                {% if current_user %}
+                <a href="{{ url_for('dashboard') }}">대시보드</a>
+                <a href="{{ url_for('logout') }}">로그아웃</a>
+                {% else %}
+                <a href="{{ url_for('login') }}">로그인</a>
+                <a href="{{ url_for('register') }}">회원가입</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list">
+                    {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

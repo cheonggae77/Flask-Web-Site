@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}대시보드 | Flask Login Site{% endblock %}
+
+{% block content %}
+<section class="hero dashboard">
+    <div>
+        <p class="eyebrow">Private Area</p>
+        <h1>{{ current_user["username"] }}님, 로그인 상태입니다.</h1>
+        <p class="hero-text">
+            이 페이지는 로그인한 사용자만 볼 수 있습니다. 세션 인증이 정상적으로 동작하고 있습니다.
+        </p>
+        <a class="button primary" href="{{ url_for('logout') }}">로그아웃</a>
+    </div>
+    <div class="card feature-card">
+        <h2>계정 정보</h2>
+        <ul>
+            <li>사용자 ID: {{ current_user["id"] }}</li>
+            <li>사용자명: {{ current_user["username"] }}</li>
+            <li>인증 방식: Flask Session</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
