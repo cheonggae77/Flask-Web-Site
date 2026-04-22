@@ -6,6 +6,9 @@ from pathlib import Path
 from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# ---------------------------------------------------------------------------
+# 앱 설정
+# ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 INSTANCE_DIR = BASE_DIR / "instance"
 DATABASE = INSTANCE_DIR / "site.db"
@@ -16,6 +19,10 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-this")
 
 
+# ---------------------------------------------------------------------------
+# 데이터베이스 헬퍼
+# ---------------------------------------------------------------------------
+# 각 요청은 Flask의 `g`에 저장된 SQLite 연결 하나를 재사용합니다.
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
@@ -23,7 +30,39 @@ def get_db():
     return g.db
 
 
+def fetch_user_by_id(user_id):
+    return get_db().execute(
+        "SELECT id, username, is_admin FROM users WHERE id = ?",
+        (user_id,),
+    ).fetchone()
+
+
+def fetch_user_by_username(username):
+    return get_db().execute(
+        "SELECT * FROM users WHERE username = ?",
+        (username,),
+    ).fetchone()
+
+
+def fetch_posts(limit=None):
+    query = """
+        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.created_at,
+               posts.updated_at, users.username
+        FROM posts
+        JOIN users ON users.id = posts.user_id
+        ORDER BY posts.created_at DESC, posts.id DESC
+    """
+    params = ()
+
+    if limit is not None:
+        query += " LIMIT ?"
+        params = (limit,)
+
+    return get_db().execute(query, params).fetchall()
+
+
 def init_db():
+    # 필요한 테이블을 만들고 관리자 계정이 항상 존재하도록 보장합니다.
     INSTANCE_DIR.mkdir(exist_ok=True)
     db = sqlite3.connect(DATABASE)
     db.row_factory = sqlite3.Row
@@ -77,14 +116,16 @@ def init_db():
     db.close()
 
 
+# ---------------------------------------------------------------------------
+# 인증 헬퍼
+# ---------------------------------------------------------------------------
+# 세션 조회와 로그인 보호 로직을 모아서 라우트 함수가 요청/응답 흐름에만
+# 집중할 수 있도록 정리합니다.
 def get_current_user():
     user_id = session.get("user_id")
     if user_id is None:
         return None
-    return get_db().execute(
-        "SELECT id, username, is_admin FROM users WHERE id = ?",
-        (user_id,),
-    ).fetchone()
+    return fetch_user_by_id(user_id)
 
 
 def login_required(view):
@@ -120,6 +161,7 @@ def can_manage_post(post, user):
 
 @app.teardown_appcontext
 def close_db(exception):
+    del exception
     db = g.pop("db", None)
     if db is not None:
         db.close()
@@ -130,18 +172,12 @@ def inject_user():
     return {"current_user": get_current_user()}
 
 
+# ---------------------------------------------------------------------------
+# 공개 라우트
+# ---------------------------------------------------------------------------
 @app.route("/")
 def home():
-    posts = get_db().execute(
-        """
-        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.created_at,
-               posts.updated_at, users.username
-        FROM posts
-        JOIN users ON users.id = posts.user_id
-        ORDER BY posts.created_at DESC, posts.id DESC
-        """
-    ).fetchall()
-    return render_template("home.html", posts=posts)
+    return render_template("home.html", posts=fetch_posts())
 
 
 @app.route("/register", methods=["GET", "POST"])
