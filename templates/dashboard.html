@@ -18,10 +18,8 @@
     <div class="card feature-card">
         <h2>계정 정보</h2>
         <ul>
-            <li>사용자 ID: {{ current_user["id"] }}</li>
             <li>사용자명: {{ current_user["username"] }}</li>
             <li>권한: {% if current_user["is_admin"] %}관리자{% else %}일반 사용자{% endif %}</li>
-            <li>인증 방식: Flask Session</li>
         </ul>
     </div>
 </section>
